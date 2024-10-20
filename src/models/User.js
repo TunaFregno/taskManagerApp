@@ -39,10 +39,10 @@ const User = mongoose.model("User", UserSchema);
 export default User;
 
 // Usage example
-const user = new User({
+/* const user = new User({
   name: "       test user   ",
   age: 100,
   email: "",
   password: "23553319Joel.",
 });
-user.save().then(console.log).catch(console.error);
+user.save().then(console.log).catch(console.error); */

@@ -17,8 +17,8 @@ const Task = mongoose.model("Task", TaskSchema);
 export default Task;
 
 // Usage example
-const task = new Task({
+/* const task = new Task({
   description: "Make the lugagge",
 });
 
-task.save().then(console.log).catch(console.error);
+task.save().then(console.log).catch(console.error); */
