@@ -3,6 +3,21 @@ import User from "../models/User.js";
 import { isValidOperation } from "../lib/utils.js";
 const router = new express.Router();
 
+// Logging User
+router.post("/users/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findByCredentials(email, password);
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found." });
+    }
+    res.send(user);
+  } catch (err) {
+    res.status(400).send({ message: "Invalid credentials." });
+  }
+});
+
 // Create a new User
 router.post("/users", async (req, res) => {
   const user = new User(req.body);
@@ -41,7 +56,8 @@ router.get("/users/:id", async (req, res) => {
 // Update a User by ID
 router.patch("/users/:id", async (req, res) => {
   const _id = req.params.id;
-  const allowedUpdates = isValidOperation(req.body, [
+  const updates = Object.keys(req.body);
+  const allowedUpdates = isValidOperation(updates, [
     "name",
     "age",
     "email",
@@ -53,15 +69,17 @@ router.patch("/users/:id", async (req, res) => {
   }
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(_id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedUser = await User.findById(_id);
+
     if (!updatedUser) {
       return res.status(404).send({ message: "User not found." });
     }
-    res.send(user);
+
+    updates.forEach((update) => (updatedUser[update] = req.body[update]));
+    await updatedUser.save();
+    res.send(updatedUser);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 });

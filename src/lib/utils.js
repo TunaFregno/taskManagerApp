@@ -1,5 +1,4 @@
-export const isValidOperation = (updatesKeys, updatesArr) => {
-  const updates = Object.keys(updatesKeys);
+export const isValidOperation = (updates, updatesArr) => {
   const allowedUpdates = updatesArr;
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)

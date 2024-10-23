@@ -43,7 +43,8 @@ router.get("/tasks/:id", async (req, res) => {
 // Update a Task by ID
 router.patch("/tasks/:id", async (req, res) => {
   const _id = req.params.id;
-  const allowedUpdates = isValidOperation(req.body, [
+  const updates = Object.keys(req.body);
+  const allowedUpdates = isValidOperation(updates, [
     "description",
     "completed",
   ]);
@@ -53,13 +54,14 @@ router.patch("/tasks/:id", async (req, res) => {
   }
 
   try {
-    const updatedTask = await Task.findByIdAndUpdate(_id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedTask = await Task.findById(_id);
+
     if (!updatedTask) {
       return res.status(404).send({ message: "Task not found." });
     }
+
+    updates.forEach((update) => (updatedTask[update] = req.body[update]));
+    await updatedTask.save();
     res.send(updatedTask);
   } catch (err) {
     res.status(400).send(err);
