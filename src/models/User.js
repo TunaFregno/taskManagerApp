@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -35,10 +36,33 @@ const UserSchema = new mongoose.Schema({
     },
     //select: false, // Don't return password in the response
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
-// middleware for logging
+// middlewares for logging
+UserSchema.methods.generateAuthToken = async function () {
+  // We dont want to use arrow function because we need to bind with "this"
+  // "methods" are accessible on the instances, sometimes called "instance methods"
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, "secretKey", {
+    expiresIn: "1h",
+  });
+
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+
+  return token;
+};
+
 UserSchema.statics.findByCredentials = async (email, password) => {
+  // "statics" methods are accessible on the model, sometimes called "model methods"
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -73,4 +97,4 @@ export default User;
   email: "",
   password: "23553319Joel.",
 });
-user.save().then(console.log).catch(console.error); */
+user.save(); */

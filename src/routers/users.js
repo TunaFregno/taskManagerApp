@@ -1,39 +1,42 @@
 import express from "express";
 import User from "../models/User.js";
 import { isValidOperation } from "../lib/utils.js";
+import { auth } from "../middleware/auth.js";
 const router = new express.Router();
 
-// Logging User
-router.post("/users/login", async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findByCredentials(email, password);
-
-    if (!user) {
-      return res.status(404).send({ message: "User not found." });
-    }
-    res.send(user);
-  } catch (err) {
-    res.status(400).send({ message: "Invalid credentials." });
-  }
-});
-
-// Create a new User
+// Create/ Signing a new User
 router.post("/users", async (req, res) => {
   const user = new User(req.body);
   try {
     await user.save();
-    res.status(202).send(user); // .send is a method that returns a message to the browser
+    const token = await user.generateAuthToken();
+    res.status(202).send({ user, token }); // .send is a method that returns a message to the browser
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
-// Get all Users
-router.get("/users", async (req, res) => {
+// Logging User
+router.post("/users/login", async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const user = await User.find({});
-    res.send(user);
+    const user = await User.findByCredentials(email, password); // static method
+    const token = await user.generateAuthToken(); // instance method
+    if (!user) {
+      return res.status(404).send({ message: "User not found." });
+    }
+    res.send({ user, token });
+  } catch (err) {
+    res.status(400).send({ message: "Invalid credentials." });
+  }
+});
+
+// Get all Users (/users) => Get My Profile (users/me ---- > it is not safe to show all users data)
+router.get("/users/me", auth, async (req, res) => {
+  try {
+    //const user = await User.find({});
+    //res.send(user);
+    res.send(req.user);
   } catch (err) {
     res.status(505).send(err);
   }
