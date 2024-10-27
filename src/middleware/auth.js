@@ -13,7 +13,7 @@ export const auth = async (req, res, next) => {
     if (!user) {
       throw new Error(); // no need to throw an error,because will trigger the catch
     }
-
+    req.token = token; // this will allow to delete the token from the device you are logging out and not all sesssions from different devices
     req.user = user; // string the user so the router doesnt need to fetch it again
     next();
   } catch (err) {

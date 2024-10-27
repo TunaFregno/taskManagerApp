@@ -46,6 +46,17 @@ const UserSchema = new mongoose.Schema({
   ],
 });
 
+// Hidding private data from the user information returned
+// for every ".res.send" function made the method "stringify" is called and that also calls ".toJSON" method that allow us to change the information that is returned
+UserSchema.methods.toJSON = function () {
+  const user = this;
+  const userObject = user.toObject();
+  delete userObject.password;
+  delete userObject.tokens;
+
+  return userObject;
+};
+
 // middlewares for logging
 UserSchema.methods.generateAuthToken = async function () {
   // We dont want to use arrow function because we need to bind with "this"
