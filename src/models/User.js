@@ -46,6 +46,16 @@ const UserSchema = new mongoose.Schema({
   ],
 });
 
+// We are gonna set up a virtual property, that is not actual data stored in the database, is a relationship between two entities, in this case Task and User.
+// With this we dont need to modify the userSchema to store an array of tasks the the user creates.
+// It is virtual because we are not actually changing what we store in the user document, it is just a way for mongoose to figure out how these two things are related.
+UserSchema.virtual("tasks", {
+  // the name 'tasks' here is a name for a virtual field, just to understand what are we making this for.
+  ref: "Task", // refers to the model Task
+  localField: "_id", // refers to the local field (User._id)
+  foreignField: "owner", // refers to the foreign field (Task.owner)
+});
+
 // Hidding private data from the user information returned
 // for every ".res.send" function made the method "stringify" is called and that also calls ".toJSON" method that allow us to change the information that is returned
 UserSchema.methods.toJSON = function () {

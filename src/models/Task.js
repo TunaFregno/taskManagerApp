@@ -10,6 +10,22 @@ const TaskSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    //index: true, // Index for faster search by owner ID.
+    /* validate: {
+      validator: async function (v) {
+        const user = await User.findById(v);
+        if (!user) {
+          throw new Error("Invalid owner ID");
+        }
+        return true;
+      },
+      message: "Invalid owner ID",
+    }, */
+  },
 });
 
 const Task = mongoose.model("Task", TaskSchema);
